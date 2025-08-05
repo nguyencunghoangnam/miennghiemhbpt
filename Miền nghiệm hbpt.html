@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Miền nghiệm hệ bất phương trình 2 ẩn</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f8fafc 0%, #ddeeff 100%);
+        margin: 0;
+        color: #222b45;
+        min-height: 100vh;
+    }
+    .container {
+        max-width: 860px;
+        margin: 32px auto;
+        background: rgba(255,255,255,0.93);
+        box-shadow: 0 8px 36px rgba(44,62,80,0.12), 0 1.5px 8px rgba(52,152,219,0.08);
+        border-radius: 18px;
+        padding: 36px 40px 28px 40px;
+        position: relative;
+    }
+    h3 {
+        color: #2563eb;
+        font-size: 1.45rem;
+        margin-bottom: 18px;
+        letter-spacing: 1px;
+        font-family: 'Montserrat', sans-serif;
+    }
+    label {
+        display: inline-block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #364e6e;
+        font-size: 1rem;
+        letter-spacing: 0.2px;
+    }
+    .input-row {
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+    }
+    .input-row .row-fields {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    input[type="number"], select {
+        width: 82px;
+        padding: 6px 8px;
+        margin: 0 6px 0 0;
+        border-radius: 6px;
+        border: 1.5px solid #b8c1ec;
+        background: #f5f8ff;
+        font-size: 1rem;
+        transition: border 0.2s;
+        outline: none;
+    }
+    input[type="number"]:focus, select:focus {
+        border: 1.5px solid #2563eb;
+        background: #f0f7ff;
+    }
+    button {
+        padding: 11px 32px;
+        background: linear-gradient(90deg, #2563eb 60%, #43b0f1 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 1.08rem;
+        border: none;
+        border-radius: 8px;
+        margin-top: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(52,152,219,0.13);
+        letter-spacing: 0.5px;
+        transition: background 0.16s, box-shadow 0.16s, transform 0.12s;
+    }
+    button:hover {
+        background: linear-gradient(90deg, #1747b6 60%, #199de6 100%);
+        box-shadow: 0 8px 22px rgba(44,62,80,0.18);
+        transform: translateY(-1px) scale(1.02);
+    }
+    canvas {
+        border: 2.5px solid #2563eb;
+        margin-top: 20px;
+        background-color: #fafdff;
+        box-shadow: 0 3px 16px rgba(44,62,80,0.09);
+        border-radius: 8px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        transition: box-shadow 0.15s;
+    }
+    .dynamic-line-controls {
+        margin: 20px 0 20px 0;
+        padding: 13px 16px;
+        background: linear-gradient(98deg, #e3ecff 60%, #e5f5fd 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 0.5px 4px #b7cdfa2d;
+    }
+    .dynamic-line-controls label {
+        font-weight: bold;
+        color: #1d3356;
+        font-size: 1.06rem;
+        margin-bottom: 0;
+    }
+    #dyn_m_val {
+        color: #d32f2f;
+        font-weight: bold;
+        font-size: 18px;
+        margin-left: 10px;
+        font-family: 'Roboto', sans-serif;
+        letter-spacing: 0.5px;
+    }
+    .info {
+        color: #6e819b;
+        font-size: 13.5px;
+        margin-left: 7px;
+        font-style: italic;
+    }
+    #inputZone input[type="number"] {
+        width: 52px;
+        margin-left: 2px;
+        margin-right: 2px;
+        padding: 5px 6px;
+    }
+    #inputZone select {
+        width: 50px;
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+    #inputZone {
+        margin-top: 5px;
+        margin-bottom: 3px;
+        padding: 0 0 2px 0;
+    }
+    #coord-display {
+        margin-top: 10px;
+        color: #1a237e;
+        font-weight: bold;
+        font-size: 1.09rem;
+        text-align: center;
+        letter-spacing: 0.5px;
+        font-family: 'Roboto', Arial, sans-serif;
+        min-height: 24px;
+        background: #eaf3ff;
+        border-radius: 7px;
+        display: inline-block;
+        padding: 2px 20px;
+    }
+    @media (max-width: 900px) {
+        .container { padding: 22px 8px; }
+        canvas { width: 100% !important; height: auto !important; }
+    }
+    @media (max-width: 550px) {
+        .container { padding: 0 1.5vw; }
+        .dynamic-line-controls { flex-direction: column; align-items: flex-start; gap: 10px; }
+        button { width: 100%; }
+        h3 { font-size: 1.1rem; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h3 style="text-align:center;">Miền nghiệm hệ bất phương trình hai ẩn</h3>
+    <div class="input-row">
+        <label>Số bất phương trình: 
+            <select id="numIneq" onchange="generateInputs()">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+        </label>
+        <div class="row-fields">
+            <label>x: <input id="x1min" placeholder="..." type="number"/>
+                <select id="x1minop"><option value="&lt;">&lt;</option><option value="&lt;=">&lt;=</option></select> x 
+                <select id="x1maxop"><option value="&lt;">&lt;</option><option value="&lt;=">&lt;=</option></select>
+                <input id="x1max" placeholder="..." type="number"/>
+            </label>
+            <label>y: <input id="y1min" placeholder="..." type="number"/>
+                <select id="y1minop"><option value="&lt;">&lt;</option><option value="&lt;=">&lt;=</option></select> y 
+                <select id="y1maxop"><option value="&lt;">&lt;</option><option value="&lt;=">&lt;=</option></select>
+                <input id="y1max" placeholder="..." type="number"/>
+            </label>
+        </div>
+    </div>
+    <div class="input-row" style="flex-direction: row; align-items: center;">
+        <label>View x: từ <input id="xmin" type="number" value="-10"> đến <input id="xmax" type="number" value="10"/></label>
+        <label>View y: từ <input id="ymin" type="number" value="-10"> đến <input id="ymax" type="number" value="10"/></label>
+    </div>
+    <div id="inputZone"></div>
+    <button onclick="draw()">Vẽ miền nghiệm</button>
+
+    <div class="dynamic-line-controls">
+        <label>
+            <input type="checkbox" id="toggle-opt-line" checked style="margin-right:6px;vertical-align:middle;">
+            <span style="vertical-align:middle;">Hiện</span>
+        </label>
+        <label>Hàm tối ưu <span style="color:#2563eb;font-weight:bold;">F(x, y) = </span>
+            <input id="dyn_a" type="number" value="1" style="width:50px;">x + 
+            <input id="dyn_b" type="number" value="1" style="width:50px;">y
+        </label>
+        <span id="dyn_m_val">= 0</span>
+        <span class="info">(Kéo trên hình)</span>
+    </div>
+
+    <canvas height="600" id="canvas" width="600"></canvas>
+    <div id="coord-display"></div>
+</div>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const inputZone = document.getElementById('inputZone');
+    const numIneqSelect = document.getElementById('numIneq');
+    const coordDisplay = document.getElementById('coord-display');
+
+    let origin = { x: W / 2, y: H / 2 };
+    let scale = 20;
+
+    // Giá trị m của hàm tối ưu động (giữ ở JS, không dùng input range nữa)
+    let dyn_m = 0;
+
+    function toCanvas(x, y) {
+      return {
+        x: origin.x + x * scale,
+        y: origin.y - y * scale
+      };
+    }
+
+    function toMathCoords(canvasX, canvasY) {
+        // Chuyển từ tọa độ canvas sang toán học
+        return {
+            x: (canvasX - origin.x) / scale,
+            y: (origin.y - canvasY) / scale
+        };
+    }
+
+    function drawAxes(xmin, xmax, ymin, ymax) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(0, origin.y);
+      ctx.lineTo(W, origin.y);
+      ctx.moveTo(origin.x, 0);
+      ctx.lineTo(origin.x, H);
+      ctx.strokeStyle = "#274faf";
+      ctx.lineWidth = 1.7;
+      ctx.stroke();
+
+      ctx.fillStyle = "#333e7c";
+      ctx.font = "11px 'Roboto', Arial";
+
+      for (let x = Math.ceil(xmin); x <= xmax; x++) {
+        if (x === 0) continue;
+        const p = toCanvas(x, 0);
+        ctx.fillText(x, p.x - 7, origin.y + 17);
+        ctx.beginPath();
+        ctx.moveTo(p.x, origin.y - 4);
+        ctx.lineTo(p.x, origin.y + 4);
+        ctx.strokeStyle = "#a2b6e6";
+        ctx.stroke();
+      }
+
+      for (let y = Math.ceil(ymin); y <= ymax; y++) {
+        if (y === 0) continue;
+        const p = toCanvas(0, y);
+        ctx.fillText(y, origin.x + 7, p.y + 3);
+        ctx.beginPath();
+        ctx.moveTo(origin.x - 4, p.y);
+        ctx.lineTo(origin.x + 4, p.y);
+        ctx.strokeStyle = "#a2b6e6";
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawLine(a, b, c, op, color = "#6c7a89", highlight=false) {
+      ctx.save();
+      if (op === "<" || op === ">") ctx.setLineDash([7, 5]);
+      else ctx.setLineDash([]);
+      const points = [];
+      for (let x = -W / scale; x <= W / scale; x += 0.5) {
+        if (b !== 0) {
+          let y = (c - a * x) / b;
+          points.push(toCanvas(x, y));
+        }
+      }
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.strokeStyle = color;
+      ctx.lineWidth = highlight ? 2 : 2.5;
+      ctx.globalAlpha = highlight ? 0.92 : 0.8;
+      ctx.shadowColor = highlight ? "#e74c3c" : "transparent";
+      ctx.shadowBlur = highlight ? 2 : 0;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 1.0;
+      ctx.restore();
+    }
+
+    function isSatisfied(a, b, c, op, x, y) {
+      const lhs = a * x + b * y;
+      switch (op) {
+        case "<": return lhs < c;
+        case "<=": return lhs <= c;
+        case ">": return lhs > c;
+        case ">=": return lhs >= c;
+        case "=": return Math.abs(lhs - c) < 1e-6;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      const x1min = parseFloat(document.getElementById("x1min").value);
+      const x1max = parseFloat(document.getElementById("x1max").value);
+      const y1min = parseFloat(document.getElementById("y1min").value);
+      const y1max = parseFloat(document.getElementById("y1max").value);
+      const x1minop = document.getElementById("x1minop").value;
+      const x1maxop = document.getElementById("x1maxop").value;
+      const y1minop = document.getElementById("y1minop").value;
+      const y1maxop = document.getElementById("y1maxop").value;
+
+      function checkRange(val, min, minop, max, maxop) {
+        let ok = true;
+        if (!isNaN(min)) {
+          ok &= (minop === "<") ? min < val : min <= val;
+        }
+        if (!isNaN(max)) {
+          ok &= (maxop === "<") ? val < max : val <= max;
+        }
+        return ok;
+      }
+
+      const xmin = +document.getElementById("xmin").value;
+      const xmax = +document.getElementById("xmax").value;
+      const ymin = +document.getElementById("ymin").value;
+      const ymax = +document.getElementById("ymax").value;
+
+      // Tính lại scale và origin
+      const xRange = xmax - xmin;
+      const yRange = ymax - ymin;
+      scale = Math.min(W / xRange, H / yRange);
+      origin = {
+        x: -xmin * scale,
+        y: ymax * scale
+      };
+
+      drawAxes(xmin, xmax, ymin, ymax);
+
+      const step = 1;
+      const num = +numIneqSelect.value;
+      const conditions = [];
+
+      for (let i = 0; i < num; i++) {
+        const a = +document.getElementById(`a${i}`).value;
+        const b = +document.getElementById(`b${i}`).value;
+        const c = +document.getElementById(`c${i}`).value;
+        const op = document.getElementById(`op${i}`).value;
+        conditions.push({ a, b, c, op });
+      }
+
+      // Gạch chéo vùng không phải miền nghiệm
+      for (let px = 0; px < W; px += step) {
+        for (let py = 0; py < H; py += step) {
+          const x = (px - origin.x) / scale;
+          const y = (origin.y - py) / scale;
+          if (x < xmin || x > xmax || y < ymin || y > ymax) continue;
+          let ok = true;
+          for (const cond of conditions) {
+            if (!isSatisfied(cond.a, cond.b, cond.c, cond.op, x, y) || 
+                !checkRange(x, x1min, x1minop, x1max, x1maxop) || 
+                !checkRange(y, y1min, y1minop, y1max, y1maxop)) {
+              ok = false;
+              break;
+            }
+          }
+          if (!ok) {
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + step, py + step);
+            ctx.strokeStyle = "rgba(78, 115, 223, 0.12)";
+            ctx.lineWidth = 1.1;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Vẽ các đường biên của bất phương trình
+      for (const cond of conditions) {
+        drawLine(cond.a, cond.b, cond.c, cond.op);
+      }
+
+      // Vẽ các đường biên của bất phương trình khuyết
+      function drawBoundaryLine(val, vertical, op) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash((op === "<" || op === ">") ? [8, 5] : []);
+        if (vertical) {
+          let p1 = toCanvas(val, ymin);
+          let p2 = toCanvas(val, ymax);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        } else {
+          let p1 = toCanvas(xmin, val);
+          let p2 = toCanvas(xmax, val);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+        ctx.strokeStyle = "#9297b3";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      if (!isNaN(x1min)) drawBoundaryLine(x1min, true, x1minop);
+      if (!isNaN(x1max)) drawBoundaryLine(x1max, true, x1maxop);
+      if (!isNaN(y1min)) drawBoundaryLine(y1min, false, y1minop);
+      if (!isNaN(y1max)) drawBoundaryLine(y1max, false, y1maxop);
+
+      // === Đường thẳng động (hàm tối ưu) ===
+      const dyn_a = +document.getElementById("dyn_a").value;
+      const dyn_b = +document.getElementById("dyn_b").value;
+      const showOptLine = document.getElementById("toggle-opt-line").checked;
+      if (showOptLine && (dyn_a !== 0 || dyn_b !== 0)) {
+        drawLine(dyn_a, dyn_b, dyn_m, "=", "#e74c3c", true);
+      }
+
+      // Hiện giá trị m lên giao diện
+      document.getElementById("dyn_m_val").textContent = "= " + dyn_m.toFixed(3);
+    }
+
+    function generateInputs() {
+      const num = +numIneqSelect.value;
+      inputZone.innerHTML = "";
+      for (let i = 0; i < num; i++) {
+        inputZone.innerHTML += `
+          <input id="a${i}" type="number" value="1">x +
+          <input id="b${i}" type="number" value="1">y
+          <select id="op${i}">
+            <option value="<"><</option>
+            <option value="<="><=</option>
+            <option value=">">></option>
+            <option value=">=">>=</option>
+          </select>
+          <input id="c${i}" type="number" value="5"><br>
+        `;
+      }
+    }
+
+    generateInputs();
+    drawAxes(-10, 10, -10, 10);
+
+    // ===== Các sự kiện kéo đường thẳng động (hàm tối ưu) =====
+    let dragging = false;
+    let dragStartMouse = null;
+    let dragStart_m = 0;
+
+    // Lấy giá trị m tối ưu ban đầu (tự động fit vào canvas)
+    function resetDynM() {
+      // Đặt m mặc định là giá trị tại gốc toạ độ
+      const dyn_a = +document.getElementById("dyn_a").value;
+      const dyn_b = +document.getElementById("dyn_b").value;
+      dyn_m = dyn_a * 0 + dyn_b * 0;
+      document.getElementById("dyn_m_val").textContent = "= " + dyn_m.toFixed(3);
+    }
+
+    // Kéo-thả mượt mà
+    canvas.addEventListener('mousedown', (e) => {
+      const mouse = {x: e.offsetX, y: e.offsetY};
+      const dyn_a = +document.getElementById("dyn_a").value;
+      const dyn_b = +document.getElementById("dyn_b").value;
+      if (dyn_a === 0 && dyn_b === 0) return;
+      let x0 = -W / (2*scale), x1 = W / (2*scale);
+      let y0, y1;
+      if (Math.abs(dyn_b) > 1e-8) {
+        y0 = (dyn_m - dyn_a * x0) / dyn_b;
+        y1 = (dyn_m - dyn_a * x1) / dyn_b;
+      } else {
+        x0 = x1 = dyn_m / dyn_a;
+        y0 = -H / (2*scale);
+        y1 = H / (2*scale);
+      }
+      let p0 = toCanvas(x0, y0);
+      let p1 = toCanvas(x1, y1);
+      function distToLine(p, a, b) {
+        let A = p.x - a.x, B = p.y - a.y, C = b.x - a.x, D = b.y - a.y;
+        let dot = A * C + B * D;
+        let len_sq = C * C + D * D;
+        let param = len_sq ? dot / len_sq : -1;
+        let xx, yy;
+        if (param < 0) { xx = a.x; yy = a.y; }
+        else if (param > 1) { xx = b.x; yy = b.y; }
+        else { xx = a.x + param * C; yy = a.y + param * D; }
+        let dx = p.x - xx, dy = p.y - yy;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+      if (distToLine(mouse, p0, p1) < 15) {
+        dragging = true;
+        dragStartMouse = mouse;
+        dragStart_m = dyn_m;
+        canvas.style.cursor = "grabbing";
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!dragging) {
+        canvas.style.cursor = "default";
+        const mouse = {x: e.offsetX, y: e.offsetY};
+        const dyn_a = +document.getElementById("dyn_a").value;
+        const dyn_b = +document.getElementById("dyn_b").value;
+        if (dyn_a === 0 && dyn_b === 0) return;
+        let x0 = -W / (2*scale), x1 = W / (2*scale);
+        let y0, y1;
+        if (Math.abs(dyn_b) > 1e-8) {
+          y0 = (dyn_m - dyn_a * x0) / dyn_b;
+          y1 = (dyn_m - dyn_a * x1) / dyn_b;
+        } else {
+          x0 = x1 = dyn_m / dyn_a;
+          y0 = -H / (2*scale);
+          y1 = H / (2*scale);
+        }
+        let p0 = toCanvas(x0, y0);
+        let p1 = toCanvas(x1, y1);
+        function distToLine(p, a, b) {
+          let A = p.x - a.x, B = p.y - a.y, C = b.x - a.x, D = b.y - a.y;
+          let dot = A * C + B * D;
+          let len_sq = C * C + D * D;
+          let param = len_sq ? dot / len_sq : -1;
+          let xx, yy;
+          if (param < 0) { xx = a.x; yy = a.y; }
+          else if (param > 1) { xx = b.x; yy = b.y; }
+          else { xx = a.x + param * C; yy = a.y + param * D; }
+          let dx = p.x - xx, dy = p.y - yy;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+        if (distToLine(mouse, p0, p1) < 15) {
+          canvas.style.cursor = "grab";
+        }
+        return;
+      }
+      const dyn_a = +document.getElementById("dyn_a").value;
+      const dyn_b = +document.getElementById("dyn_b").value;
+      if (dyn_a === 0 && dyn_b === 0) return;
+      const x = (e.offsetX - origin.x) / scale;
+      const y = (origin.y - e.offsetY) / scale;
+      dyn_m = dyn_a * x + dyn_b * y;
+      draw();
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      dragging = false;
+      canvas.style.cursor = "default";
+    });
+    canvas.addEventListener('mouseleave', () => {
+      dragging = false;
+      canvas.style.cursor = "default";
+    });
+
+    document.getElementById("dyn_a").addEventListener("input", function(){
+      resetDynM();
+      draw();
+    });
+    document.getElementById("dyn_b").addEventListener("input", function(){
+      resetDynM();
+      draw();
+    });
+
+    resetDynM();
+    draw();
+
+    document.getElementById('toggle-opt-line').addEventListener('change', draw);
+
+    canvas.addEventListener('click', function(e) {
+        if (dragging) return;
+        const xmin = +document.getElementById("xmin").value;
+        const xmax = +document.getElementById("xmax").value;
+        const ymin = +document.getElementById("ymin").value;
+        const ymax = +document.getElementById("ymax").value;
+        const coords = toMathCoords(e.offsetX, e.offsetY);
+        const x = Math.round(coords.x * 1000) / 1000;
+        const y = Math.round(coords.y * 1000) / 1000;
+        if (x < xmin || x > xmax || y < ymin || y > ymax) {
+            coordDisplay.textContent = '';
+            return;
+        }
+        coordDisplay.textContent = `Tọa độ điểm: ( x = ${x} ; y = ${y} )`;
+    });
+</script>
+</body>
+</html>
